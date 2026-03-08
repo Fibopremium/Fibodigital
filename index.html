@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiboDigital — Premium Digital Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#050508;--surface:#0f0f1a;--surface2:#141428;
+    --accent:#00f5d4;--accent2:#7b2fff;--accent3:#ff2d78;
+    --text:#e8e8f0;--muted:#6b6b8a;--border:rgba(0,245,212,0.12);
+    --glow:0 0 20px rgba(0,245,212,0.3);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Syne',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;}
+
+  .cursor{width:12px;height:12px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;mix-blend-mode:difference;}
+  .cursor-ring{width:36px;height:36px;border:1px solid rgba(0,245,212,0.5);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transition:all 0.15s ease;}
+
+  .grid-bg{position:fixed;inset:0;z-index:0;background-image:linear-gradient(rgba(0,245,212,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,212,0.025) 1px,transparent 1px);background-size:60px 60px;animation:gridMove 20s linear infinite;}
+  @keyframes gridMove{0%{background-position:0 0}100%{background-position:60px 60px}}
+
+  .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:orbFloat 15s ease-in-out infinite;}
+  .orb1{width:500px;height:500px;background:rgba(123,47,255,0.08);top:-100px;right:-100px;}
+  .orb2{width:400px;height:400px;background:rgba(0,245,212,0.06);bottom:-100px;left:-100px;animation-delay:-7s;}
+  .orb3{width:300px;height:300px;background:rgba(255,45,120,0.05);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-3s;}
+  @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,30px) scale(0.95)}}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:72px;background:rgba(5,5,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+  .logo{font-size:22px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .logo span{-webkit-text-fill-color:var(--accent3);}
+  .nav-live{font-family:'Space Mono',monospace;font-size:10px;color:var(--accent);border:1px solid rgba(0,245,212,0.3);padding:3px 10px;border-radius:100px;letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+  .live-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.5s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .cart-btn{display:flex;align-items:center;gap:8px;padding:8px 20px;background:rgba(0,245,212,0.08);border:1px solid rgba(0,245,212,0.3);border-radius:100px;color:var(--accent);font-family:'Space Mono',monospace;font-size:12px;cursor:none;transition:all 0.3s;}
+  .cart-btn:hover{background:rgba(0,245,212,0.15);box-shadow:var(--glow);transform:translateY(-1px);}
+  #cartBadge{background:var(--accent3);color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center;}
+  #cartBadge.show{display:flex;}
+
+  .hero{min-height:100vh;display:flex;align-items:center;padding:120px 40px 80px;position:relative;z-index:1;}
+  .hero-content{max-width:680px;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:28px;padding:6px 16px;border:1px solid rgba(0,245,212,0.2);border-radius:100px;background:rgba(0,245,212,0.05);animation:fadeUp 0.8s ease both;}
+  .hero-tag::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 1.5s infinite;}
+  .hero-title{font-size:clamp(46px,7.5vw,86px);font-weight:800;line-height:0.95;letter-spacing:-3px;margin-bottom:28px;animation:fadeUp 0.8s 0.1s ease both;}
+  .hero-title .t1{display:block;color:var(--text);}
+  .hero-title .t2{display:block;background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:200%;animation:gradShift 4s ease-in-out infinite,fadeUp 0.8s 0.2s ease both;}
+  @keyframes gradShift{0%,100%{background-position:0%}50%{background-position:100%}}
+  .hero-desc{font-size:16px;color:var(--muted);line-height:1.75;max-width:440px;margin-bottom:44px;animation:fadeUp 0.8s 0.3s ease both;}
+  .hero-btns{display:flex;gap:14px;flex-wrap:wrap;animation:fadeUp 0.8s 0.4s ease both;}
+  .btn-p{padding:13px 30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:100px;color:var(--bg);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:none;transition:all 0.3s;}
+  .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,245,212,0.4);}
+  .btn-s{padding:13px 30px;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:100px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;font-weight:600;cursor:none;transition:all 0.3s;text-decoration:none;display:inline-block;}
+  .btn-s:hover{border-color:var(--accent);color:var(--accent);}
+  .hero-stats{position:absolute;right:60px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:28px;animation:fadeLeft 0.8s 0.5s ease both;}
+  .stat{text-align:right;border-right:2px solid rgba(0,245,212,0.2);padding-right:18px;}
+  .stat-n{font-size:34px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+  .stat-l{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+  .scroll-ind{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;animation:fadeUp 1s 0.8s ease both;}
+  .scroll-line{width:1px;height:48px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollAnim 2s ease-in-out infinite;}
+  @keyframes scrollAnim{0%,100%{height:48px;opacity:1}50%{height:18px;opacity:0.3}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeLeft{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:translateX(0)}}
+
+  .marquee-wrap{position:relative;z-index:1;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;overflow:hidden;background:rgba(0,245,212,0.015);}
+  .marquee-track{display:flex;gap:32px;width:max-content;animation:marquee 45s linear infinite;align-items:center;}
+  .m-item{display:flex;align-items:center;gap:9px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.5px;white-space:nowrap;}
+  .m-item img{width:20px;height:20px;object-fit:contain;border-radius:5px;}
+  .m-sep{color:rgba(0,245,212,0.3);font-size:8px;}
+  @keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+  main{position:relative;z-index:1;padding:0 40px 100px;}
+  .filter-wrap{padding:56px 0 32px;}
+  .filter-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px;}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .f-btn{padding:7px 18px;border-radius:100px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.02);color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:none;transition:all 0.25s;}
+  .f-btn:hover,.f-btn.active{background:rgba(0,245,212,0.1);border-color:rgba(0,245,212,0.35);color:var(--accent);}
+
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:18px;padding-top:14px;}
+  .sec-title{font-size:22px;font-weight:800;letter-spacing:-0.5px;}
+  .sec-cnt{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);}
+  .sec-line{flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent);}
+
+  .p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:13px;margin-bottom:52px;}
+
+  .p-card{position:relative;background:var(--surface);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:22px 14px 16px;cursor:none;transition:all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);overflow:hidden;animation:fadeUp 0.5s ease both;}
+  .p-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,245,212,0.04),rgba(123,47,255,0.04));opacity:0;transition:opacity 0.3s;}
+  .p-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--accent3));transform:scaleX(0);transform-origin:left;transition:transform 0.35s;}
+  .p-card:hover{transform:translateY(-8px) scale(1.02);border-color:rgba(0,245,212,0.18);box-shadow:0 20px 50px rgba(0,0,0,0.5),0 0 30px rgba(0,245,212,0.07);}
+  .p-card:hover::before{opacity:1;}
+  .p-card:hover::after{transform:scaleX(1);}
+  .p-card.selected{border-color:rgba(0,245,212,0.5);box-shadow:0 0 30px rgba(0,245,212,0.15);}
+  .p-card.selected::after{transform:scaleX(1);}
+  .p-card.selected::before{opacity:1;}
+
+  .card-shine{position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(0,245,212,0.07),transparent 70%);opacity:0;transition:opacity 0.35s;}
+  .p-card:hover .card-shine,.p-card.selected .card-shine{opacity:1;}
+
+  /* LOGO WRAPPER */
+  .logo-wrap{width:64px;height:64px;border-radius:16px;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;z-index:1;transition:transform 0.3s;flex-shrink:0;}
+  .p-card:hover .logo-wrap{transform:scale(1.1) rotate(-3deg);}
+  .logo-wrap img{width:100%;height:100%;object-fit:cover;border-radius:16px;display:block;}
+
+  /* Fallback emoji icon */
+  .logo-emoji{width:64px;height:64px;border-radius:16px;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--surface2);border:1px solid rgba(255,255,255,0.08);position:relative;z-index:1;transition:transform 0.3s;}
+  .p-card:hover .logo-emoji{transform:scale(1.1) rotate(-3deg);}
+
+  .p-name{font-size:12px;font-weight:700;text-align:center;color:var(--text);position:relative;z-index:1;line-height:1.35;}
+  .p-badge{position:absolute;top:9px;right:9px;font-family:'Space Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:100px;text-transform:uppercase;letter-spacing:0.5px;}
+  .b-hot{background:rgba(255,45,120,0.15);color:var(--accent3);border:1px solid rgba(255,45,120,0.3);}
+  .b-new{background:rgba(0,245,212,0.12);color:var(--accent);border:1px solid rgba(0,245,212,0.3);}
+  .b-sale{background:rgba(255,200,0,0.12);color:#ffc800;border:1px solid rgba(255,200,0,0.3);}
+
+  .cart-panel{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(24px);z-index:1000;background:rgba(8,8,16,0.97);backdrop-filter:blur(24px);border:1px solid rgba(0,245,212,0.2);border-radius:100px;padding:13px 22px;display:flex;align-items:center;gap:18px;box-shadow:0 20px 60px rgba(0,0,0,0.7),var(--glow);opacity:0;pointer-events:none;transition:all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);min-width:340px;}
+  .cart-panel.show{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
+  .cp-info{flex:1;}
+  .cp-cnt{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;}
+  .cp-names{font-size:13px;font-weight:700;margin-top:2px;}
+  .cp-checkout{padding:9px 22px;border-radius:100px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:var(--bg);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:none;transition:all 0.3s;white-space:nowrap;}
+  .cp-checkout:hover{transform:scale(1.04);box-shadow:var(--glow);}
+  .cp-clear{background:none;border:none;color:var(--muted);font-size:17px;cursor:none;padding:4px;transition:color 0.2s;}
+  .cp-clear:hover{color:var(--accent3);}
+
+  .overlay{position:fixed;inset:0;z-index:2000;background:rgba(5,5,8,0.93);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity 0.3s;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .overlay.open{opacity:1;pointer-events:all;}
+  .modal{background:var(--surface);border:1px solid rgba(0,245,212,0.14);border-radius:28px;padding:36px;max-width:460px;width:100%;max-height:80vh;overflow-y:auto;transform:scale(0.9) translateY(20px);transition:transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);position:relative;}
+  .overlay.open .modal{transform:scale(1) translateY(0);}
+  .m-close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,0.06);border:none;width:34px;height:34px;border-radius:50%;color:var(--muted);font-size:16px;cursor:none;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+  .m-close:hover{background:rgba(255,45,120,0.15);color:var(--accent3);}
+  .m-title{font-size:21px;font-weight:800;margin-bottom:5px;}
+  .m-sub{color:var(--muted);font-size:13px;margin-bottom:22px;}
+  .o-item{display:flex;align-items:center;gap:13px;padding:13px;background:var(--surface2);border-radius:14px;margin-bottom:9px;}
+  .o-logo{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;}
+  .o-logo img{width:100%;height:100%;object-fit:cover;border-radius:11px;}
+  .o-logo-emoji{width:42px;height:42px;border-radius:11px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .o-name{font-size:13px;font-weight:700;}
+  .o-rm{margin-left:auto;background:none;border:none;color:var(--muted);cursor:none;font-size:15px;padding:4px;transition:color 0.2s;}
+  .o-rm:hover{color:var(--accent3);}
+  .o-empty{text-align:center;padding:36px;color:var(--muted);font-size:14px;}
+  .o-empty span{font-size:44px;display:block;margin-bottom:10px;opacity:0.35;}
+  .m-foot{margin-top:22px;padding-top:22px;border-top:1px solid var(--border);}
+  .tg-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:14px;color:var(--bg);font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:none;transition:all 0.3s;text-decoration:none;}
+  .tg-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,245,212,0.4);}
+
+  footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:44px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+  .f-logo{font-size:19px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .f-logo span{-webkit-text-fill-color:var(--accent3);}
+  .f-text{color:var(--muted);font-size:12px;margin-top:5px;}
+  .f-link{display:flex;align-items:center;gap:7px;color:var(--accent);font-family:'Space Mono',monospace;font-size:11px;text-decoration:none;border:1px solid rgba(0,245,212,0.2);padding:8px 15px;border-radius:100px;transition:all 0.3s;}
+  .f-link:hover{background:rgba(0,245,212,0.08);box-shadow:var(--glow);}
+
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:rgba(0,245,212,0.3);border-radius:2px;}
+
+  @media(max-width:768px){
+    nav{padding:0 16px;}
+    .hero{padding:90px 20px 80px;}
+    .hero-stats{display:none;}
+    .hero-title{font-size:44px;letter-spacing:-2px;}
+    main{padding:0 16px 80px;}
+    footer{padding:28px 16px;flex-direction:column;text-align:center;}
+    .p-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
+    .cart-panel{min-width:calc(100vw - 32px);}
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="ring"></div>
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<nav>
+  <div class="logo">Fibo<span>Digital</span></div>
+  <div class="nav-live"><div class="live-dot"></div>Live Store</div>
+  <button class="cart-btn" onclick="openModal()">
+    🛒 Cart <div id="cartBadge">0</div>
+  </button>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-tag">Premium Digital Products</div>
+    <h1 class="hero-title">
+      <span class="t1">Unlock the</span>
+      <span class="t2">Digital World</span>
+    </h1>
+    <p class="hero-desc">Premium subscriptions, AI tools, creative apps & more — delivered instantly. Myanmar's most trusted digital store.</p>
+    <div class="hero-btns">
+      <button class="btn-p" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Browse Products</button>
+      <a href="https://t.me/fibodigital" class="btn-s" target="_blank">Contact Admin</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-n" id="c1">0</div><div class="stat-l">Products</div></div>
+    <div class="stat"><div class="stat-n" id="c2">0</div><div class="stat-l">Customers</div></div>
+    <div class="stat"><div class="stat-n" id="c3">0</div><div class="stat-l">% Uptime</div></div>
+  </div>
+  <div class="scroll-ind"><div class="scroll-line"></div><span>Scroll</span></div>
+</section>
+
+<div class="marquee-wrap"><div class="marquee-track" id="marquee"></div></div>
+
+<main id="products">
+  <div class="filter-wrap">
+    <div class="filter-label">// Filter by category</div>
+    <div class="filters" id="filters"></div>
+  </div>
+  <div id="sections"></div>
+</main>
+
+<div class="cart-panel" id="cartPanel">
+  <div class="cp-info">
+    <div class="cp-cnt" id="cpCnt">0 ITEMS</div>
+    <div class="cp-names" id="cpNames"></div>
+  </div>
+  <button class="cp-checkout" onclick="openModal()">Checkout →</button>
+  <button class="cp-clear" onclick="clearCart()">✕</button>
+</div>
+
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+  <div class="modal">
+    <button class="m-close" onclick="closeModal()">✕</button>
+    <div class="m-title">Your Order</div>
+    <div class="m-sub">Review items then send to admin on Telegram.</div>
+    <div id="orderList"></div>
+    <div class="m-foot">
+      <a href="https://t.me/fibodigital" class="tg-btn" target="_blank">📱 Order via Telegram</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <div class="f-logo">Fibo<span>Digital</span></div>
+    <div class="f-text">© 2025 FiboDigital — Premium Digital Store</div>
+  </div>
+  <a href="https://t.me/fibodigital" class="f-link" target="_blank">📱 Join Community</a>
+</footer>
+
+<script>
+// Logo URLs using Google's favicon service + direct CDN links that work cross-origin
+// Format: [primaryUrl, fallbackEmoji]
+const LOGO = {
+  // Editing Apps
+  "CapCut":         ["https://ssl.gstatic.com/images/branding/product/2x/keep_2020_48dp.png", "✂️"],
+  "AlightMotion":   ["https://play-lh.googleusercontent.com/7mMGiCkJqX8g9fVOUWjNaF0RDyiZUyBRo0xQfRerMWxfCEGLVv0-S-gSEuNPUVxrVQ=s180-rw", "🎬"],
+  "Wink":           ["https://play-lh.googleusercontent.com/lJcRwOG3aAp9hTB7CjME6F3gX4RkrJIVo7F2Z_O0xJ1PVKtWdY9kpWQmJRPdDiuBfA=s180-rw", "💫"],
+  "Meitu":          ["https://play-lh.googleusercontent.com/JZGp_MZ3SGSK2fBHjCgVSaK88y1GNW0ILQqTi2-5GDc79CGzKJiLzJYvuF5taqG8Sg=s180-rw", "✨"],
+  "PicsArt":        ["https://www.gstatic.com/images/icons/material/apps/logo/1x/googlephotos_48dp.png","🎨"],
+  "Canva":          ["https://static.canva.com/web/images/12487a1e0770d29351bd4ce4f87ec8fe.png", "🎭"],
+  "VSCO":           ["https://play-lh.googleusercontent.com/fWAqk3DVKM9ZTz7LoBivb1MVR1gZj72qstHgULM5HAy84XtE6bT5QT7tpLiXLfB6rw=s180-rw", "📷"],
+  "PhotoRoom":      ["https://play-lh.googleusercontent.com/iFSTRQzEJOp9CyLSEiX0NNk9SbsJVoQbWGKFg1ub0f6bS-8P9jdZriTRJz4l7a3Fxw=s180-rw","🖼️"],
+  "Remini":         ["https://play-lh.googleusercontent.com/b4YJ2dY5rMJ6DYxCh5rJHT3mPFQo4bxX7ePxH0u_h4MqCM_k5qrmAOflbWp3nUaI_w=s180-rw","📸"],
+  "InShot":         ["https://play-lh.googleusercontent.com/fKBG9Q8JBwGVOvB4YbJxYS97K_c0G3Xy1zWQq3q-0ZJNJfkWiJVjcx0b2UqfBJVqbg=s180-rw","🎞️"],
+
+  // AI
+  "ChatGPT Plus":   ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/240px-ChatGPT_logo.svg.png", "🤖"],
+  "Gemini Veo 3":   ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/240px-Google_Gemini_logo.svg.png", "💫"],
+  "Grammarly AI":   ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Grammarly_logo.svg/240px-Grammarly_logo.svg.png","✍️"],
+  "Perplexity AI":  ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Perplexity_AI_logo.svg/240px-Perplexity_AI_logo.svg.png","🔮"],
+  "Flow AI":        ["https://www.gstatic.com/images/icons/material/apps/logo/1x/googlephotos_48dp.png","🌊"],
+  "NotebookLM":     ["https://lh3.googleusercontent.com/M8ESX1dHZAHCmDMjdllpBb3BT4f1FnNweFVpNhT85gVm6_Y_JtQGaF9fgxmFSlVoGjg=s180-rw","📓"],
+
+  // VPN
+  "NordVPN":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/NordVPN_logo.svg/240px-NordVPN_logo.svg.png","🛡️"],
+  "ExpressVPN":     ["https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/ExpressVPN_logo.svg/240px-ExpressVPN_logo.svg.png","⚡"],
+  "Surfshark VPN":  ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Surfshark_logo.svg/240px-Surfshark_logo.svg.png","🦈"],
+  "HMA VPN":        ["https://play-lh.googleusercontent.com/hLdKpX2H4sxnm2L6yFi5UX8UW5eZqJ0V9S3LqnKqFqKEHjbYm6EUkZTNSPb6bGD0nQ=s180-rw","🔐"],
+
+  // Streaming
+  "Netflix":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Netflix_2015_logo.svg/240px-Netflix_2015_logo.svg.png","🎬"],
+  "Disney+":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Disney%2B_logo.svg/240px-Disney%2B_logo.svg.png","🏰"],
+  "HBO Max":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Max_logo_2023.svg/240px-Max_logo_2023.svg.png","📺"],
+  "Prime Video":    ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Prime_Video.png/240px-Prime_Video.png","📦"],
+  "Crunchyroll":    ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Crunchyroll_Logo.svg/240px-Crunchyroll_Logo.svg.png","⛩️"],
+  "Spotify":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Spotify_logo_with_text.svg/240px-Spotify_logo_with_text.svg.png","🎵"],
+  "Apple Music":    ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Apple_Music_icon.svg/240px-Apple_Music_icon.svg.png","🎶"],
+  "YouTube Premium":["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/240px-YouTube_Logo_2017.svg.png","▶️"],
+  "Qobuz":          ["https://play-lh.googleusercontent.com/VVZaGmL27FmJ6lBqzR7Zy9Gy5ANmP8NVJMIG4KqxXmYRVFaFcqbUVgNZ3Z_3TqFyw=s180-rw","🎼"],
+  "Zoom":           ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Zoom_Logo_2022.svg/240px-Zoom_Logo_2022.svg.png","📹"],
+  "GAGAOOLALA":     ["https://play-lh.googleusercontent.com/Qk1F1bV_x7T8lU35V0uoQ0V8p9Z8oO3hR8y_Rb3UzQ5FBl7L7w5w_H7C3PkD1I4q=s180-rw","🌈"],
+  "BSTATION":       ["https://play-lh.googleusercontent.com/rFpfCFjMM-E3VXr1b9vl1S-HVGVDZaclnFk5KMqGGFR7QjFvJfLJlqPRFPGjV2V0ow=s180-rw","📺"],
+
+  // Communication
+  "Telegram Premium":["https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/240px-Telegram_logo.svg.png","✈️"],
+  "Telegram Star":   ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/240px-Telegram_logo.svg.png","⭐"],
+  "Discord":         ["https://upload.wikimedia.org/wikipedia/en/thumb/9/98/Discord_logo.svg/240px-Discord_logo.svg.png","🎮"],
+  "Tinder":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Tinder_Logo.png/240px-Tinder_Logo.png","💝"],
+
+  // Windows
+  "Windows License": ["https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Windows_logo_-_2012.svg/240px-Windows_logo_-_2012.svg.png","🪟"],
+  "Microsoft 365":   ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/240px-Microsoft_logo.svg.png","💼"],
+
+  // Education
+  "TradingView":     ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/TradingView_Logo.svg/240px-TradingView_Logo.svg.png","📈"],
+  "Duolingo Super":  ["https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Duolingo-logo.png/240px-Duolingo-logo.png","🦜"],
+  "SCRIBD":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Scribd_logo.svg/240px-Scribd_logo.svg.png","📚"],
+  "WPS Office":      ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/WPS_Office_logo_2019.svg/240px-WPS_Office_logo_2019.svg.png","📄"],
+  "Wattpad":         ["https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Wattpad_Logo.svg/240px-Wattpad_Logo.svg.png","📖"],
+
+  // Cloud
+  "Google Drive":    ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/240px-Google_Drive_icon_%282020%29.svg.png","📁"],
+  "iCloud":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/ICloud_logo.svg/240px-ICloud_logo.svg.png","☁️"],
+  "Google One":      ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Google_Photos_icon.svg/240px-Google_Photos_icon.svg.png","🗄️"],
+  "TeraBox":         ["https://play-lh.googleusercontent.com/7M4mFSKTJfY2PkM_a5GKw8wNjMJF5BTnM_3y9dUq16u1gAQv9QbB_i1wQf_bsBAbVw=s180-rw","📦"],
+
+  // Boosting
+  "TikTok Official":     ["https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/240px-TikTok_logo.svg.png","🎯"],
+  "TikTok Non Official": ["https://upload.wikimedia.org/wikipedia/en/thumb/a/a9/TikTok_logo.svg/240px-TikTok_logo.svg.png","🎯"],
+  "Telegram Boost":      ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Telegram_logo.svg/240px-Telegram_logo.svg.png","🚀"],
+  "YouTube Boost":       ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/YouTube_Logo_2017.svg/240px-YouTube_Logo_2017.svg.png","▶️"],
+  "Facebook Boost":      ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/240px-2021_Facebook_icon.svg.png","👍"],
+  "Instagram Boost":     ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/240px-Instagram_logo_2016.svg.png","📸"],
+
+  // Gift Cards
+  "PlaySafeCard":         ["https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Google_Play_2022_logo.svg/240px-Google_Play_2022_logo.svg.png","🃏"],
+  "Google Play Gift Card":["https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Google_Play_2022_logo.svg/240px-Google_Play_2022_logo.svg.png","🎮"],
+  "Steam Wallet":         ["https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/240px-Steam_icon_logo.svg.png","🎲"],
+
+  // Adobe
+  "Adobe Creative Cloud": ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Adobe_Creative_Cloud_Logo.png/240px-Adobe_Creative_Cloud_Logo.png","🎨"],
+  "Photoshop":            ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Adobe_Photoshop_CC_icon.svg/240px-Adobe_Photoshop_CC_icon.svg.png","🖼️"],
+  "Lightroom":            ["https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Adobe_Photoshop_Lightroom_CC_logo.svg/240px-Adobe_Photoshop_Lightroom_CC_logo.svg.png","📸"],
+  "Premiere Pro":         ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Adobe_Premiere_Pro_CC_icon.svg/240px-Adobe_Premiere_Pro_CC_icon.svg.png","🎬"],
+  "Illustrator":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Adobe_Illustrator_CC_icon.svg/240px-Adobe_Illustrator_CC_icon.svg.png","✏️"],
+  "After Effects":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Adobe_After_Effects_CC_icon.svg/240px-Adobe_After_Effects_CC_icon.svg.png","✨"],
+  "Acrobat Pro":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Adobe_Acrobat_DC_logo_2020.svg/240px-Adobe_Acrobat_DC_logo_2020.svg.png","📋"],
+  "InDesign":             ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Adobe_InDesign_CC_icon.svg/240px-Adobe_InDesign_CC_icon.svg.png","📰"],
+  "Audition":             ["https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/Adobe_Audition_CC_icon_%282020%29.svg/240px-Adobe_Audition_CC_icon_%282020%29.svg.png","🎵"],
+  "Animate":              ["https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Adobe_Animate_icon_2021.svg/240px-Adobe_Animate_icon_2021.svg.png","🎭"],
+  "Dreamweaver":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Adobe_Dreamweaver_CC_icon.svg/240px-Adobe_Dreamweaver_CC_icon.svg.png","🌐"],
+  "Adobe Bridge":         ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Adobe_Bridge_CC_icon.svg/240px-Adobe_Bridge_CC_icon.svg.png","🌉"],
+  "Adobe Express":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Adobe_Express_logo.png/240px-Adobe_Express_logo.png","⚡"],
+  "Adobe Capture":        ["https://play-lh.googleusercontent.com/VvXHbX_9YqLVXl3AE9G1L3-GRH3u0x4JF-YqYl0C4HNvpkF3h5mQyR5bZkDCPQ7Bw=s180-rw","📷"],
+  "Adobe Aero":           ["https://play-lh.googleusercontent.com/Qk1F1bV_x7T8lU35V0uoQ0V8p9Z8oO3hR8y_Rb3UzQ5FBl7L7w5w_H7C3PkD1I4q=s180-rw","🥽"],
+  "Adobe Fonts":          ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Adobe_Creative_Cloud_Logo.png/240px-Adobe_Creative_Cloud_Logo.png","🔡"],
+  "Fresco":               ["https://play-lh.googleusercontent.com/hM6P9Rh7UiGAqJCrgkX5R7UNgxXfxzZFJ5Jk0QgN8b_tZpCrj3VsBYm3ZVBOB2Bxg=s180-rw","🖌️"],
+  "Media Encoder":        ["https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Adobe_After_Effects_CC_icon.svg/240px-Adobe_After_Effects_CC_icon.svg.png","📼"],
+  "Character Animator":   ["https://play-lh.googleusercontent.com/rFpfCFjMM-E3VXr1b9vl1S-HVGVDZaclnFk5KMqGGFR7QjFvJfLJlqPRFPGjV2V0ow=s180-rw","🎪"],
+  "Firefly AI":           ["https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Adobe_Creative_Cloud_Logo.png/240px-Adobe_Creative_Cloud_Logo.png","🔥"],
+
+  // Website Service
+  "Custom Website":       ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/240px-PNG_transparency_demonstration_1.png","🌐"],
+  "Domain":               ["https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/240px-PNG_transparency_demonstration_1.png","🔗"],
+};
+
+const PRODUCTS = {
+  "Editing Apps": [
+    {name:"CapCut", badge:"hot"},
+    {name:"AlightMotion"},
+    {name:"Wink"},
+    {name:"Meitu"},
+    {name:"PicsArt"},
+    {name:"Canva"},
+    {name:"VSCO"},
+    {name:"PhotoRoom"},
+    {name:"Remini"},
+    {name:"InShot"},
+  ],
+  "AI Tools": [
+    {name:"ChatGPT Plus", badge:"hot"},
+    {name:"Gemini Veo 3", badge:"new"},
+    {name:"Grammarly AI"},
+    {name:"Perplexity AI"},
+    {name:"Flow AI", badge:"new"},
+    {name:"NotebookLM"},
+  ],
+  "VPN": [
+    {name:"NordVPN", badge:"hot"},
+    {name:"ExpressVPN"},
+    {name:"Surfshark VPN"},
+    {name:"HMA VPN"},
+  ],
+  "Streaming": [
+    {name:"Netflix", badge:"hot"},
+    {name:"Disney+"},
+    {name:"HBO Max"},
+    {name:"Prime Video"},
+    {name:"Crunchyroll"},
+    {name:"Spotify", badge:"hot"},
+    {name:"Apple Music"},
+    {name:"YouTube Premium"},
+    {name:"Qobuz"},
+    {name:"Zoom"},
+    {name:"GAGAOOLALA"},
+    {name:"BSTATION"},
+  ],
+  "Communication": [
+    {name:"Telegram Premium", badge:"hot"},
+    {name:"Telegram Star"},
+    {name:"Discord"},
+    {name:"Tinder"},
+  ],
+  "Windows & Microsoft": [
+    {name:"Windows License"},
+    {name:"Microsoft 365"},
+  ],
+  "Education": [
+    {name:"TradingView", badge:"new"},
+    {name:"Duolingo Super"},
+    {name:"SCRIBD"},
+    {name:"WPS Office"},
+    {name:"Wattpad"},
+  ],
+  "Cloud Storage": [
+    {name:"Google Drive"},
+    {name:"iCloud"},
+    {name:"Google One"},
+    {name:"TeraBox", badge:"sale"},
+  ],
+  "Boosting": [
+    {name:"TikTok Official", badge:"hot"},
+    {name:"TikTok Non Official"},
+    {name:"Telegram Boost"},
+    {name:"YouTube Boost"},
+    {name:"Facebook Boost"},
+    {name:"Instagram Boost"},
+  ],
+  "Gift Cards": [
+    {name:"PlaySafeCard"},
+    {name:"Google Play Gift Card"},
+    {name:"Steam Wallet"},
+  ],
+  "Adobe": [
+    {name:"Adobe Creative Cloud", badge:"hot"},
+    {name:"Photoshop"},
+    {name:"Lightroom"},
+    {name:"Premiere Pro"},
+    {name:"Illustrator"},
+    {name:"After Effects"},
+    {name:"Acrobat Pro"},
+    {name:"InDesign"},
+    {name:"Audition"},
+    {name:"Animate"},
+    {name:"Dreamweaver"},
+    {name:"Adobe Bridge"},
+    {name:"Adobe Express"},
+    {name:"Adobe Capture"},
+    {name:"Adobe Aero"},
+    {name:"Adobe Fonts"},
+    {name:"Fresco"},
+    {name:"Media Encoder"},
+    {name:"Character Animator"},
+    {name:"Firefly AI", badge:"new"},
+  ],
+  "Website Service": [
+    {name:"Custom Website"},
+    {name:"Domain"},
+  ],
+};
+
+const CATS = ["All", ...Object.keys(PRODUCTS)];
+let cart = [], filter = "All";
+
+// CURSOR
+const cur = document.getElementById('cursor'), rng = document.getElementById('ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function tick(){
+  cur.style.cssText=`left:${mx-6}px;top:${my-6}px`;
+  rx+=(mx-rx)*0.12; ry+=(my-ry)*0.12;
+  rng.style.cssText=`left:${rx-18}px;top:${ry-18}px`;
+  requestAnimationFrame(tick);
+})();
+
+// COUNTERS
+function count(el,to,sfx){
+  let v=0,s=to/60,iv=setInterval(()=>{v=Math.min(v+s,to);el.textContent=Math.round(v)+sfx;if(v>=to)clearInterval(iv);},33);
+}
+const total=Object.values(PRODUCTS).reduce((a,b)=>a+b.length,0);
+setTimeout(()=>{count(c1,total,'+');count(c2,2500,'+');count(c3,99,'%');},600);
+
+// Build logo HTML for a product name
+function logoHTML(name, size=64, radius=16) {
+  const info = LOGO[name];
+  if (!info) return `<div class="logo-emoji" style="width:${size}px;height:${size}px;border-radius:${radius}px;">📦</div>`;
+  const [url, emoji] = info;
+  return `<div class="logo-wrap" style="width:${size}px;height:${size}px;border-radius:${radius}px;">
+    <img 
+      src="${url}" 
+      alt="${name}"
+      onerror="this.parentElement.outerHTML='<div class=\\'logo-emoji\\' style=\\'width:${size}px;height:${size}px;border-radius:${radius}px;\\'>${emoji}</div>'"
+    >
+  </div>`;
+}
+
+// MARQUEE
+const all=Object.values(PRODUCTS).flat();
+const mq=document.getElementById('marquee');
+const mqItems=[...all,...all];
+mqItems.forEach(p=>{
+  const info=LOGO[p.name];
+  const emoji=info?info[1]:'📦';
+  const url=info?info[0]:'';
+  mq.innerHTML+=`
+    <div class="m-item">
+      <img src="${url}" alt="" onerror="this.outerHTML='<span>${emoji}</span>'" style="width:20px;height:20px;object-fit:contain;border-radius:4px;">
+      <span>${p.name}</span>
+      <span class="m-sep">✦</span>
+    </div>`;
+});
+
+// FILTERS
+const fe=document.getElementById('filters');
+CATS.forEach(c=>{
+  const b=document.createElement('button');
+  b.className='f-btn'+(c==='All'?' active':'');
+  b.textContent=c==='All'?'⚡ All':c;
+  b.onclick=()=>{
+    document.querySelectorAll('.f-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); filter=c; render();
+  };
+  fe.appendChild(b);
+});
+
+// RENDER
+function render(){
+  const sec=document.getElementById('sections'); sec.innerHTML='';
+  const data=filter==='All'?PRODUCTS:{[filter]:PRODUCTS[filter]};
+  Object.entries(data).forEach(([cat,prods])=>{
+    const w=document.createElement('div');
+    w.innerHTML=`<div class="sec-head"><div class="sec-title">${cat}</div><div class="sec-cnt">${prods.length} items</div><div class="sec-line"></div></div>`;
+    const g=document.createElement('div'); g.className='p-grid';
+    prods.forEach((p,i)=>{
+      const sel=cart.some(c=>c.name===p.name);
+      const d=document.createElement('div');
+      d.className='p-card'+(sel?' selected':'');
+      d.style.animationDelay=(i*0.04)+'s';
+      d.innerHTML=`
+        <div class="card-shine"></div>
+        ${p.badge?`<div class="p-badge b-${p.badge}">${p.badge}</div>`:''}
+        ${logoHTML(p.name)}
+        <div class="p-name">${p.name}</div>
+      `;
+      d.onclick=()=>toggle(p,d);
+      g.appendChild(d);
+    });
+    w.appendChild(g); sec.appendChild(w);
+  });
+}
+
+// CART
+function toggle(p,card){
+  const i=cart.findIndex(c=>c.name===p.name);
+  if(i>=0){cart.splice(i,1);card.classList.remove('selected');}
+  else{
+    cart.push(p);card.classList.add('selected');
+    card.animate([{transform:'translateY(-10px) scale(1.05)'},{transform:''}],{duration:360,easing:'ease-out'});
+  }
+  updateUI();
+}
+function clearCart(){cart=[];render();updateUI();}
+function updateUI(){
+  const n=cart.length, b=document.getElementById('cartBadge');
+  b.textContent=n; n>0?b.classList.add('show'):b.classList.remove('show');
+  const panel=document.getElementById('cartPanel');
+  if(n>0){
+    panel.classList.add('show');
+    document.getElementById('cpCnt').textContent=n+' ITEM'+(n>1?'S':'')+' SELECTED';
+    document.getElementById('cpNames').textContent=cart.slice(0,2).map(c=>c.name).join(', ')+(n>2?' …':'');
+  } else panel.classList.remove('show');
+}
+function openModal(){
+  const ol=document.getElementById('orderList');
+  if(cart.length===0){
+    ol.innerHTML='<div class="o-empty"><span>🛒</span>No items yet. Tap products to add.</div>';
+  } else {
+    ol.innerHTML=cart.map((p,i)=>{
+      const info=LOGO[p.name];
+      const logoEl=info
+        ?`<div class="o-logo"><img src="${info[0]}" alt="${p.name}" onerror="this.parentElement.outerHTML='<div class=o-logo-emoji>${info[1]}</div>'"></div>`
+        :`<div class="o-logo-emoji">📦</div>`;
+      return `<div class="o-item">${logoEl}<div class="o-name">${p.name}</div><button class="o-rm" onclick="removeItem(${i})">✕</button></div>`;
+    }).join('');
+  }
+  document.getElementById('overlay').classList.add('open');
+}
+function removeItem(i){cart.splice(i,1);updateUI();openModal();render();}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+function outsideClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+render();
+</script>
+</body>
+</html>
